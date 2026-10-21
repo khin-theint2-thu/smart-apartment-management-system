@@ -2,6 +2,8 @@
 
 **Business Analysis Document** | Version 1.0 (Draft) | 19 October 2026
 
+---
+
 ## 1. Purpose and Objectives
 
 Provide one platform to manage two apartment properties, **RungRuang Mansion** and **Marisa Residence**, covering rooms, tenants, lease contracts and rent. The system automatically reminds tenants and staff before a contract ends, so renewals and move-outs are handled on time and vacancy is reduced.
@@ -106,26 +108,26 @@ The system scans active contracts daily and sends reminders at configured interv
 ## 8. Functional Requirements
 
 | ID | Requirement |
-|---|---|
-| FR-01 | Manage multiple properties, each with its own buildings, room types and rent. |
-| FR-02 | Manage tenant profiles and documents. |
-| FR-03 | Create, renew and terminate contracts with attachments. |
-| FR-04 | Enforce contract terms per building (6 months Marisa A/B, 12 months Marisa C). |
-| FR-05 | Calculate deposit automatically (RungRuang: 2 months' rent + 100 keycard; Marisa: 8,500) and calculate contract status from dates. |
-| FR-06 | Run a daily job to detect contracts nearing expiry. |
-| FR-07 | Configure reminder rules per property. |
-| FR-08 | Send reminders by LINE, SMS and in-app notification using templates. |
-| FR-09 | Support Auto, Approval and Manual send modes. |
-| FR-10 | Stop reminders on renewal or termination; prevent duplicates. |
-| FR-11 | Keep reminder history with delivery status. |
-| FR-12 | Create repair tickets from tenant portal or manager entry, with photo and priority. |
-| FR-13 | Assign tickets and require acknowledgement from owner or technician. |
-| FR-14 | Send automatic follow-up and escalation reminders for unresolved tickets. |
-| FR-15 | Notify tenant on every ticket status change; close only after tenant confirmation. |
-| FR-16 | Generate rent invoices and track payments and arrears. |
-| FR-17 | Provide dashboards and reports filtered by property and building. |
-| FR-18 | Provide role-based access limited to assigned properties. |
-| FR-19 | Keep an audit log of contract and ticket changes. |
+|----------------|------------------------------------------------------------------------------------------------|
+| FR‑01 | Manage multiple properties, each with its own buildings, room types and rent. |
+| FR‑02 | Manage tenant profiles and documents. |
+| FR‑03 | Create, renew and terminate contracts with attachments. |
+| FR‑04 | Enforce contract terms per building (6 months Marisa A/B, 12 months Marisa C). |
+| FR‑05 | Calculate deposit automatically (RungRuang: 2 months' rent + 100 keycard; Marisa: 8,500) and calculate contract status from dates. |
+| FR‑06 | Run a daily job to detect contracts nearing expiry. |
+| FR‑07 | Configure reminder rules per property. |
+| FR‑08 | Send reminders by LINE, SMS and in-app notification using templates. |
+| FR‑09 | Support Auto, Approval and Manual send modes. |
+| FR‑10 | Stop reminders on renewal or termination; prevent duplicates. |
+| FR‑11 | Keep reminder history with delivery status. |
+| FR‑12 | Create repair tickets from tenant portal or manager entry, with photo and priority. |
+| FR‑13 | Assign tickets and require acknowledgement from owner or technician. |
+| FR‑14 | Send automatic follow-up and escalation reminders for unresolved tickets. |
+| FR‑15 | Notify tenant on every ticket status change; close only after tenant confirmation. |
+| FR‑16 | Generate rent invoices and track payments and arrears. |
+| FR‑17 | Provide dashboards and reports filtered by property and building. |
+| FR‑18 | Provide role-based access limited to assigned properties. |
+| FR‑19 | Keep an audit log of contract and ticket changes. |
 
 ## 9. Dashboards
 
