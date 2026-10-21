@@ -1,0 +1,157 @@
+# Smart Apartment Management System
+
+**Business Analysis Document** | Version 1.0 (Draft) | 19 October 2026
+
+## 1. Purpose and Objectives
+
+Provide one platform to manage two apartment properties, **RungRuang Mansion** and **Marisa Residence**, covering rooms, tenants, lease contracts and rent. The system automatically reminds tenants and staff before a contract ends, so renewals and move-outs are handled on time and vacancy is reduced.
+
+**Problem today:** contract end dates are tracked manually, expiries go unnoticed, and managers have no single view of occupancy and upcoming expiries across both properties. Repair requests are made by phone call to the owner, with no record, so they are forgotten and rooms stay unrepaired.
+
+## 2. Properties and Rent
+
+| Property | Building | Room Type | Rent / Month (THB) | Deposit (THB) | Contract Term |
+|---|---|---|---|---|---|
+| RungRuang Mansion | A | Standard | 3,500 | 7,000 + 100 keycard = 7,100 | TBD |
+| RungRuang Mansion | B | Standard | 3,800 | 7,600 + 100 keycard = 7,700 | TBD |
+| RungRuang Mansion | C | Standard | 3,800 | 7,600 + 100 keycard = 7,700 | TBD |
+| RungRuang Mansion | D | Standard | 4,500 | 9,000 + 100 keycard = 9,100 | TBD |
+| Marisa Residence | A | 1 Bedroom | TBD | 8,500 | **6 months** |
+| Marisa Residence | A | 2 Bedroom | From 13,000 | 8,500 | **6 months** |
+| Marisa Residence | B | All rooms | 6,500 | 8,500 | **6 months** |
+| Marisa Residence | C | All rooms | 6,500 | 8,500 | **1 year (12 months)** |
+
+- Rent is set per building and room type, and can be overridden per unit.
+- **RungRuang Mansion deposit** = 2 months' rent + 100 keycard fee, calculated automatically from the building rent.
+- **Marisa Residence deposit** is a fixed 8,500 per room.
+- The system enforces the contract term: 6 months for Marisa A and B, 12 months for Marisa C. Other terms are blocked.
+- All data, users, reports and dashboards are separated by property and can be filtered by building.
+
+## 3. User Roles
+
+| Role | Responsibility |
+|---|---|
+| Super Admin | System settings, properties, users |
+| Property Manager | Units, tenants, contracts, reminders (per property) |
+| Owner | Occupancy, income and expiring-contract views |
+| Accountant | Invoices, receipts, deposits |
+| Maintenance Technician | Receives and completes repair tickets |
+| Tenant | Views contract, receives reminders, submits and confirms repair requests |
+
+## 4. Core Modules
+
+1. **Property and Unit Management:** properties, buildings, room types, rent, status (Vacant, Occupied, Reserved, Maintenance).
+2. **Tenant Management:** profile, ID documents, contact details.
+3. **Contract Management:** start and end date, rent, deposit, renewal, termination, contract-term rules.
+4. **Auto Reminder Engine:** scheduled contract-expiry reminders.
+5. **Maintenance Management:** repair tickets, assignment, follow-up reminders, escalation.
+6. **Billing:** monthly rent invoices, payments, arrears.
+7. **Dashboards and Reports:** occupancy, expiring contracts, open repairs, income by property and building.
+
+## 5. Auto Reminder for Contract Expiry
+
+The system scans active contracts daily and sends reminders at configured intervals before the end date, until the contract is renewed, terminated or expired.
+
+| Days Before Expiry | Recipient | Channel |
+|---|---|---|
+| 90 | Manager, Owner | In-app, LINE |
+| 60 | Tenant, Manager | LINE, SMS |
+| 30 | Tenant, Manager | LINE, SMS |
+| 15 | Tenant, Manager | SMS, In-app |
+| 7 | Tenant, Manager, Owner | LINE, SMS |
+| Expiry day / overdue | Manager, Owner | In-app, LINE |
+
+**Rules**
+
+- Intervals, recipients and channels are configurable per property.
+- Reminders stop automatically on renewal or termination, and are never sent twice for the same contract and interval.
+- **Fixed terms:** Marisa A and B renew for 6 months and Marisa C for 12 months, and the reminder message states the required term. Because 6-month contracts are short, the first reminder (90 days) can be moved to 60 days for these buildings.
+- Managers can pause, edit, resend or manually send any reminder. Send modes: **Auto**, **Approval** (manager approves first) and **Manual**.
+- Failed messages are retried, then logged and flagged to the manager.
+- Templates use variables such as `{tenant_name}`, `{property}`, `{building}`, `{unit_no}`, `{contract_end_date}`, `{days_left}` and `{monthly_rent}`.
+
+**Example:** "Dear {tenant_name}, your lease for Unit {unit_no}, {property} Building {building}, ends on {contract_end_date} ({days_left} days left). Please contact the office to renew or arrange move-out."
+
+## 6. Room Maintenance and Repair Follow-up
+
+**Problem:** a tenant phones the owner about a broken item, nothing is recorded, the owner forgets, and the tenant has no way to follow up.
+
+**Solution:** every repair request becomes a **ticket** with an owner, a deadline and automatic reminders, so nothing depends on memory.
+
+- **Create:** tenant submits via the portal, or the manager logs a phone call. Each ticket has a number, property, building, room, description, photo and priority (**Urgent**, **High**, **Normal**).
+- **Assign:** ticket goes to the owner or a technician, who must acknowledge it.
+- **Track:** status flows **New**, **Acknowledged**, **In Progress**, **Done**, **Closed**. The tenant is notified at every change.
+- **Close:** the technician adds a completion note or photo, and the ticket closes only after the tenant confirms (or after a configured auto-close period).
+
+| Trigger (Normal priority) | Reminder To | Channel |
+|---|---|---|
+| Ticket created | Owner / technician, Manager | SMS, In-app |
+| Not acknowledged in 4 hours | Owner / technician | SMS |
+| Not started in 24 hours | Owner / technician, Manager | SMS, LINE |
+| Not done in 48 hours | Owner, Manager (escalation) | SMS, LINE |
+| Not done in 72 hours | Super Admin, and tenant is informed | In-app, LINE |
+| Still open | Daily reminder until closed | SMS |
+
+- Urgent tickets (water leak, no electricity, no water) use shorter times, for example 1 hour to acknowledge and 4 hours to start. All times are configurable per property.
+- Reminders stop when the ticket is marked Done. Managers can reassign, reschedule or add a note.
+- Tenants can reopen a ticket if the problem is not fixed.
+
+## 7. Contract Lifecycle
+
+**Draft** → **Active** → **Expiring** (within 90 days) → **Renewed** / **Terminated** / **Expired**
+
+- **Renewal:** tenant confirms, manager creates the new contract (rent pre-filled from the building rate), old contract is marked Renewed and reminders stop.
+- **Move-out:** tenant confirms, deposit is settled, unit becomes Vacant, contract is closed.
+
+## 8. Functional Requirements
+
+| ID | Requirement |
+|---|---|
+| FR-01 | Manage multiple properties, each with its own buildings, room types and rent. |
+| FR-02 | Manage tenant profiles and documents. |
+| FR-03 | Create, renew and terminate contracts with attachments. |
+| FR-04 | Enforce contract terms per building (6 months Marisa A/B, 12 months Marisa C). |
+| FR-05 | Calculate deposit automatically (RungRuang: 2 months' rent + 100 keycard; Marisa: 8,500) and calculate contract status from dates. |
+| FR-06 | Run a daily job to detect contracts nearing expiry. |
+| FR-07 | Configure reminder rules per property. |
+| FR-08 | Send reminders by LINE, SMS and in-app notification using templates. |
+| FR-09 | Support Auto, Approval and Manual send modes. |
+| FR-10 | Stop reminders on renewal or termination; prevent duplicates. |
+| FR-11 | Keep reminder history with delivery status. |
+| FR-12 | Create repair tickets from tenant portal or manager entry, with photo and priority. |
+| FR-13 | Assign tickets and require acknowledgement from owner or technician. |
+| FR-14 | Send automatic follow-up and escalation reminders for unresolved tickets. |
+| FR-15 | Notify tenant on every ticket status change; close only after tenant confirmation. |
+| FR-16 | Generate rent invoices and track payments and arrears. |
+| FR-17 | Provide dashboards and reports filtered by property and building. |
+| FR-18 | Provide role-based access limited to assigned properties. |
+| FR-19 | Keep an audit log of contract and ticket changes. |
+
+## 9. Dashboards
+
+- Contracts expiring in 7, 30, 60 and 90 days, per property and building
+- Occupancy rate and vacant units
+- Monthly income by property and building
+- Reminders sent today and failed reminders
+- Pending renewals and move-outs
+- Open repair tickets, overdue tickets and average repair time
+
+## 10. Non-Functional Requirements
+
+- **Performance:** daily reminder scan completes within 5 minutes.
+- **Reliability:** scheduler recovers from missed runs.
+- **Security:** role-based access, encrypted sensitive data.
+- **Language:** templates in English and Thai.
+
+## 11. Acceptance Criteria
+
+- Both properties and all buildings are set up with the correct rent.
+- Contracts nearing expiry are detected daily and reminders go out at the configured intervals.
+- Contracts cannot be created with a term other than 6 months (Marisa A, B) or 12 months (Marisa C).
+- Deposit is calculated correctly for every building, e.g. RungRuang D = 9,000 + 100 keycard.
+- No duplicate reminders; reminders stop once a contract is renewed or terminated.
+- Dashboards show accurate counts per property and building.
+- Reminder history and delivery status are available for every contract.
+- Every repair request is recorded as a ticket and cannot be lost.
+- Unacknowledged or unresolved tickets trigger reminders and escalation on schedule.
+- Tenants receive status updates and can confirm or reopen a repair.
