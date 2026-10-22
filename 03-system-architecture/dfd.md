@@ -6,76 +6,7 @@
 
 ## 1. Diagram (Mermaid)
 
-```mermaid
-flowchart TD
-    %% External entities
-    PM1[Property Manager]
-    PM2[Property Manager]
-    PM3[Property Manager]
-    PM4[Property Manager]
-    TEN[Tenant]
-    OT[Owner / Technician]
-    LINE[LINE Messaging]
-    SMS[SMS Gateway]
-    INAPP[In-App Notification]
-
-    %% Processes
-    P1("1.0 Create / Renew / Terminate Contract")
-    P2("2.0 Detect Contracts Nearing Expiry")
-    P3("3.0 Create / Update Repair Ticket")
-    P4("4.0 Monitor Unresolved Tickets")
-    P5("5.0 Find Template and Recipients (EN / TH)")
-    P6("6.0 Auto Mode")
-    P7("7.0 Approval Mode")
-    P8("8.0 Manual Mode")
-    P9("9.0 Dispatch Notification")
-
-    %% Data stores
-    D1[(D1: Contract)]
-    D2[(D2: Repair Ticket)]
-    D3[(D3: Reminder Log)]
-    D4[(D4: Template Data)]
-    D5[(D5: Recipient Profile)]
-    D6[(D6: Notification History)]
-    D7[(D7: Rent, Deposit and Term Rules)]
-
-    %% Contract flow
-    PM1 <-->|Contract request / summary + deposit| P1
-    D7 -->|Rent, deposit + term rules| P1
-    P1 -->|Contract: create / renew / terminate| D1
-    D1 -->|Active contracts + days to expiry| P2
-    D3 <-->|Sent milestones / new / closed| P2
-    P2 -->|Reminder request: 90, 60, 30, 15, 7, 0, overdue| P5
-
-    %% Repair ticket flow
-    PM2 -->|Manager-entered ticket| P3
-    TEN <-->|Repair request, photo, priority / confirmation| P3
-    OT <-->|Assignment / acknowledgement| P3
-    P3 -->|Ticket: new / status| D2
-    D2 -->|Unresolved tickets + age| P4
-    P3 -->|Ticket status change| P5
-    P4 -->|Reminder / escalation request| P5
-
-    %% Template and recipient lookup
-    D4 -->|Module templates| P5
-    D5 -->|Contact + language| P5
-
-    %% Modes
-    P5 -->|Reminder + template + recipients| P6
-    P5 -->|Reminder + template + recipients| P7
-    P5 -->|Reminder + template + recipients| P8
-    PM3 <-->|Approval request / approve, reject, edit| P7
-    PM4 <-->|Listing selection, template choice, edited content| P8
-
-    %% Dispatch
-    P6 -->|Message auto| P9
-    P7 -->|Approved message| P9
-    P8 -->|Edited message manual| P9
-    P9 <-->|LINE message / delivery status| LINE
-    P9 <-->|SMS / delivery status| SMS
-    P9 <-->|In-app notification / delivery status| INAPP
-    P9 -->|Status + history| D6
-```
+![alt text](image.png)
 
 > Note: "Property Manager" appears several times in the original diagram (as a repeated external entity) to avoid crossing lines. It is the same entity.
 
